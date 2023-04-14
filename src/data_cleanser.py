@@ -1,9 +1,5 @@
 import pandas as pd
 
-import logging
-logger = logging.getLogger('my_logger3')
-logger.setLevel(logging.INFO)
-
 class DataCleanser:
 
     all_districts = [
@@ -50,7 +46,6 @@ class DataCleanser:
         ### 상담문의나 내용확인 불가 항목 제거
         elems = ['상담문의', '내용확인불가']
         cond = ~((self.__df['사건종별'].isin(elems)) & (self.__df['종결분류'] == '비출동종결') & (self.__df['신고종결'] == '조치없이 종결'))
-        # total_not_df3 = self.__df[~cond]
         self.__df = self.__df[cond]
 
         self.__df.reset_index(drop=True, inplace=True)
@@ -58,7 +53,18 @@ class DataCleanser:
         ### 허위신고, 오작동, 오인신고, 동일신고, FTX(기동훈련), 신고취소, 불발견, 타청/타서 항목 제거
         elems = ['허위', '오작동', '오인', '동일', 'FTX', '신고취소', '불발견', '타청,타서', '110/120']
         cond = ~(self.__df['신고종결'].isin(elems))
-        # total_not_df4 = self.__df[~cond]
+        self.__df = self.__df[cond]
+
+        self.__df.reset_index(drop=True, inplace=True)
+
+        ### (기타경찰업무 & 상담문의 & 비출동종결) 제거
+        cond = ~((self.__df['종별분류'] == '기타경찰업무') & (self.__df['사건종별'] == '상담문의') & (self.__df['종결분류'] == '비출동종결'))
+        self.__df = self.__df[cond]
+
+        self.__df.reset_index(drop=True, inplace=True)
+
+        ### (타기관_기타 & 내용확인불가 & 비출동종결) 제거
+        cond = ~((self.__df['종별분류'] == '타기관_기타') & (self.__df['사건종별'] == '내용확인불가') & (self.__df['종결분류'] == '비출동종결'))
         self.__df = self.__df[cond]
 
         self.__df.reset_index(drop=True, inplace=True)

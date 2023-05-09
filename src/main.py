@@ -27,17 +27,13 @@ def main():
     # logging setting
     format = "%(asctime)s: %(message)s"
     logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
-    logging.info("Main-Process : before createing process")
+    logging.info("Main-Process : before createing sub process")
 
     # Data Loading
-    rcp_df = pd.read_csv('lot_not_comp_df.csv', dtype=str)
-    # rcp_df = pd.read_csv('road_not_comp_df.csv')
-    # rcp_df = pd.read_excel('1. ★안전서비스2.0 필요 데이터_인천경찰청(22.3.7_22.5.29).xlsx', header=2)
+    rcp_df = pd.read_csv('a.csv', dtype=str)
     logging.info("Data file loading is fininshed")
     logging.info(f"Loading Data Rows : {rcp_df.shape[0]}")
-    
-    print(rcp_df.isnull().sum())
-    
+
     # 전처리 객체 생성 및 기능 사용
     obj = DataCleanser(rcp_df, '인천')
     obj.delete_na_location()
@@ -46,23 +42,13 @@ def main():
     obj.delete_other_district()
     logging.info("Data preprocessing is fininshed")
 
-    # targe 지정 및 분기
-    target_col = '지번주소'
-    
-    if target_col == '도로명주소':
-        target_df = obj.get_roadAddr_df
-        non_target_col = '지번주소'
-        non_target_df = obj.get_lotNumber_df
-    elif target_col == '지번주소':
-        target_df = obj.get_lotNumber_df
-        non_target_col = '도로명주소'
-        non_target_df = obj.get_roadAddr_df
-    
-    logging.info(f'target_col : {target_col}')
-    logging.info(f"Target Data Rows : {target_df.shape[0]}")
-    
+    # target 지정
+    rn_adrs_df = obj.get_rn_adrs_df.copy()
+    logging.info('target_col : rn_adrs')
+    logging.info(f"Target Data Rows : {rn_adrs_df.shape[0]}")
+
     # API KEY 개수만큼 데이터프레임을 수평 분할
-    split_df_lst: List['pandas.DataFrame'] = np.array_split(ary=target_df, indices_or_sections=len(RestApiKey.rest_api_key))
+    split_df_lst: List['pandas.DataFrame'] = np.array_split(ary=rn_adrs_df, indices_or_sections=len(RestApiKey.rest_api_key))
 
     # 분할된 데이터프레임 리스트와 API KEY 리스트를 엮기
     api_args = zip(split_df_lst, RestApiKey.rest_api_key)
@@ -73,14 +59,14 @@ def main():
         # mangager를 통한 ListProxy 객체 생성
         lproxy: 'multiprocessing.managers.ListProxy' = manager.list()
 
-        # process context 객체를 담을 리스트 
+        # process context 객체를 담을 리스트
         processes: List['multiprocessing.context.Process'] = []
 
         for enum_it, args in enumerate(api_args):
 
             p = Process(
                 target=get_kakao_api_multiprocessing,
-                args=(lproxy, target_col, args[0], args[1], ),
+                args=(lproxy, 'rn_adrs', args[0], args[1], ),
                 name="Kakao-api-prog Sub-Process" + str(enum_it)
             )
 
@@ -94,11 +80,67 @@ def main():
         except KeyboardInterrupt:
             logging.warn("Keyboard interrupt in Main-Process")
         finally:
-            total_df = pd.concat(lproxy)
-            total_df.to_csv(f'{target_col}.csv', index=False)
+            # 프로세스별 API를 돌린 데이터프레임을 수평병합
+            rn_adrs_df = pd.concat(lproxy)
 
-            total_df.to_csv(f'{target_col}.csv', index=False)
-            non_target_df.to_csv(f'{non_target_col}.csv', index=False)
+            rn_adrs_df[rn_adrs_df['lo'].notnull()].to_csv('rn_adrs.csv', index=False)
+
+            if rn_adrs_df[rn_adrs_df['lo'].isnull()].empty:
+                lno_adrs_df = obj.get_lno_adrs_df.copy()
+            else:
+                lno_adrs_df = pd.concat([
+                    rn_adrs_df[rn_adrs_df['lo'].isnull()],
+                    obj.get_lno_adrs_df.copy()
+                ])
+
+            lno_adrs_df.to_csv('lno_adrs.csv', index=False)
+
+
+    # new target 지정
+    lno_adrs_df.reset_index(drop=True, inplace=True)
+    logging.info('target_col : lno_adrs')
+    logging.info(f"Target Data Rows : {lno_adrs_df.shape[0]}")
+
+    # API KEY 개수만큼 데이터프레임을 수평 분할
+    split_df_lst: List['pandas.DataFrame'] = np.array_split(ary=lno_adrs_df, indices_or_sections=len(RestApiKey.rest_api_key))
+
+    # 분할된 데이터프레임 리스트와 API KEY 리스트를 엮기
+    api_args = zip(split_df_lst, RestApiKey.rest_api_key)
+
+    # Process간 Proxy를 이용해서 Data를 교환
+    with Manager() as manager:
+
+        # mangager를 통한 ListProxy 객체 생성
+        lproxy: 'multiprocessing.managers.ListProxy' = manager.list()
+
+        # process context 객체를 담을 리스트
+        processes: List['multiprocessing.context.Process'] = []
+
+        for enum_it, args in enumerate(api_args):
+
+            p = Process(
+                target=get_kakao_api_multiprocessing,
+                args=(lproxy, 'lno_adrs', args[0], args[1], ),
+                name="Kakao-api-prog Sub-Process" + str(enum_it)
+            )
+
+            processes.append(p)
+
+            p.start()
+
+        try:
+            for p in processes:
+                p.join()
+        except KeyboardInterrupt:
+            logging.warn("Keyboard interrupt in Main-Process")
+        finally:
+            # 프로세스별 API를 돌린 데이터프레임을 수평병합
+            lno_adrs_df = pd.concat(lproxy)
+
+            lno_adrs_df[lno_adrs_df['lo'].notnull()].to_csv('lno_adrs.csv', index=False)
+            lno_adrs_df[lno_adrs_df['lo'].isnull()].to_csv('null_adrs.csv', index=False)
+
+    logging.info("Main-Process : Finished")
 
 
 if __name__ == '__main__':

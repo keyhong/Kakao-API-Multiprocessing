@@ -25,7 +25,7 @@ def get_kakao_api_multiprocessing(list_proxy: 'multiprocessing.managers.ListProx
             
             addr = data[target_col]
             
-            # 도로명주소가 nan인 경우 스킵하여 api 호출 횟수를 아낌
+            # 주소가 nan인 경우 스킵하여 api 호출 횟수를 아낌
             if isinstance(addr, float) and math.isnan(addr):
                 continue
 
@@ -53,8 +53,8 @@ def get_kakao_api_multiprocessing(list_proxy: 'multiprocessing.managers.ListProx
                     continue
 
                 # result['documents']가 []가 아닌 경우(위경도를 찾은 경우) 위경도 값을 대입
-                df.loc[idx, 'longitude'] = result['documents'][0]['x']
-                df.loc[idx, 'latitude'] = result['documents'][0]['y']
+                df.loc[idx, 'lo'] = result['documents'][0]['x']
+                df.loc[idx, 'la'] = result['documents'][0]['y']
 
     except KeyboardInterrupt:
         logging.warn(f"{current_process().name} : Finished (Keyboard interrupt in Main-Process)")

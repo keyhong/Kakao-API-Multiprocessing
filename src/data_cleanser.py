@@ -12,7 +12,7 @@ class DataCleanser:
         '인천', '광주', '대구', '대전', '울산', '부산',
         '세종', '제주'
     ]
-        
+
     def __init__(self, df: 'pandas.DataFrame', district_name: str) -> None:
 
         self.__df = df
@@ -26,7 +26,7 @@ class DataCleanser:
     def delete_na_location(self):
 
         # 도로명주소와 지번주소가 모두 결측치인 행 제거
-        cond = (self.__df['도로명주소'].notnull()) | (self.__df['지번주소'].notnull())
+        cond = (self.__df['rn_adrs'].notnull()) | (self.__df['lno_adrs'].notnull())
         # total_null_df = self.__df[~cond]
         self.__df = self.__df[cond]
 
@@ -35,36 +35,36 @@ class DataCleanser:
     def replace_location_strings(self):
 
         # [공중전화] => 문자열 제거
-        self.__df['도로명주소'] = self.__df['도로명주소'].str.replace(pat=r"^\[공중전화\] ", repl='', regex=True)
-        self.__df['지번주소'] = self.__df['지번주소'].str.replace(pat=r"^\[공중전화\] ", repl='', regex=True)
+        self.__df['rn_adrs'] = self.__df['rn_adrs'].str.replace(pat=r"^\[공중전화\] ", repl='', regex=True)
+        self.__df['lno_adrs'] = self.__df['lno_adrs'].str.replace(pat=r"^\[공중전화\] ", repl='', regex=True)
 
         # (~ 읍/면/동) => 문자열 제거
-        self.__df['지번주소'] = self.__df['지번주소'].str.replace(pat=r"\([ㄱ-ㅣ가-힣0-9\s.:]+\)", repl='', regex=True).str.replace('  ', ' ')    
+        self.__df['lno_adrs'] = self.__df['lno_adrs'].str.replace(pat=r"\([ㄱ-ㅣ가-힣0-9\s.:]+\)", repl='', regex=True).str.replace('  ', ' ')
 
     def delete_ambiguous_location(self):
 
         ### 상담문의나 내용확인 불가 항목 제거
         elems = ['상담문의', '내용확인불가']
-        cond = ~((self.__df['사건종별'].isin(elems)) & (self.__df['종결분류'] == '비출동종결') & (self.__df['신고종결'] == '조치없이 종결'))
+        cond = ~((self.__df['incd_ass_nm'].isin(elems)) & (self.__df['end_cl_nm'] == '비출동종결') & (self.__df['stt_end_nm'] == '조치없이 종결'))
         self.__df = self.__df[cond]
 
         self.__df.reset_index(drop=True, inplace=True)
 
         ### 허위신고, 오작동, 오인신고, 동일신고, FTX(기동훈련), 신고취소, 불발견, 타청/타서 항목 제거
         elems = ['허위', '오작동', '오인', '동일', 'FTX', '신고취소', '불발견', '타청,타서', '110/120']
-        cond = ~(self.__df['신고종결'].isin(elems))
+        cond = ~(self.__df['stt_end_nm'].isin(elems))
         self.__df = self.__df[cond]
 
         self.__df.reset_index(drop=True, inplace=True)
 
         ### (기타경찰업무 & 상담문의 & 비출동종결) 제거
-        cond = ~((self.__df['종별분류'] == '기타경찰업무') & (self.__df['사건종별'] == '상담문의') & (self.__df['종결분류'] == '비출동종결'))
+        cond = ~((self.__df['ass_cl_nm'] == '기타경찰업무') & (self.__df['incd_ass_nm'] == '상담문의') & (self.__df['end_cl_nm'] == '비출동종결'))
         self.__df = self.__df[cond]
 
         self.__df.reset_index(drop=True, inplace=True)
 
         ### (타기관_기타 & 내용확인불가 & 비출동종결) 제거
-        cond = ~((self.__df['종별분류'] == '타기관_기타') & (self.__df['사건종별'] == '내용확인불가') & (self.__df['종결분류'] == '비출동종결'))
+        cond = ~((self.__df['ass_cl_nm'] == '타기관_기타') & (self.__df['incd_ass_nm'] == '내용확인불가') & (self.__df['end_cl_nm'] == '비출동종결'))
         self.__df = self.__df[cond]
 
         self.__df.reset_index(drop=True, inplace=True)
@@ -75,40 +75,40 @@ class DataCleanser:
 
         # 도로명주소에 타 지역 이름이 들어간 주소 제거
         for district in del_districts:
-            
+
             self.__df.query(
-                expr=f'~도로명주소.str.startswith("{district} ", na=False)',
+                expr=f'~rn_adrs.str.startswith("{district} ", na=False)',
                 inplace=True,
                 engine='python'
             )
         else:
-            # 도로명 주소가 notnull인 데이터를 self.__roadAddr_df에 저장
-            self.__roadAddr_df = self.__df.query('도로명주소.notnull()', engine='python').reset_index(drop=True)
+            # 도로명 주소가 notnull인 데이터를 self.__rn_adrs_df에 저장
+            self.__rn_adrs_df = self.__df.query('rn_adrs.notnull()', engine='python').reset_index(drop=True)
 
             # 도로명 주소가 null인 데이터를 self.df에 저장
-            self.__df.query('도로명주소.isnull()', engine='python', inplace=True)
+            self.__df.query('rn_adrs.isnull()', engine='python', inplace=True)
 
         # 지번주소 타 지역 이름이 들어간 주소 제거
         for district in del_districts:
-            
+
             self.__df.query(
-                expr=f'~지번주소.str.startswith("{district} ", na=False)',
+                expr=f'~lno_adrs.str.startswith("{district} ", na=False)',
                 inplace=True,
                 engine='python'
             )
         else:
-            # 남은 데이터 중에서 지번주소가 notnull인 데이터를 self.__lotNumber_df에 저장
-            self.__lotNumber_df = self.__df.reset_index(drop=True)
+            # 남은 데이터 중에서 지번주소가 notnull인 데이터를 self.__lno_adrs_df에 저장
+            self.__lno_adrs_df = self.__df.reset_index(drop=True)
 
             # self.df는 더 이상 사용하지 않으므로 'END'를 입력
             self.__df = 'END'
 
     @property
-    def get_roadAddr_df(self):
-        
-        return self.__roadAddr_df
+    def get_rn_adrs_df(self):
+
+        return self.__rn_adrs_df
 
     @property
-    def get_lotNumber_df(self):
-        
-        return self.__lotNumber_df
+    def get_lno_adrs_df(self):
+
+        return self.__lno_adrs_df

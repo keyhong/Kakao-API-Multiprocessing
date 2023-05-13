@@ -1,7 +1,26 @@
 .. -*- mode: rst -*-
 
 =========================
-kakao-api-location-multiprocessing
+Kakao-API-Multiprocessing
 =========================
 
-카카오 rest api를 이용하여 데이터프레임에 위경도 좌표를 multiprocessing으로 붙여주고 병합하는 코드
+``카카오맵의 Rest API 를 멀티프로세싱으로 각 분할된 데이터프레임에 위경도 좌표를 생성하고 다시 병합하는 프로그램``
+
+
+How to use
+-----------
+1. src/api_keys 안에 rest api key 를 기입
+
+2. main.py 코드에 안에 읽어들일 csv 파일을 명시적 기재 (현재는 argparse 를 구현하지 않은 상태)
+
+Notes
+------
+- API 키가 많으면 많을 수록 분산처리 속도 증가
+
+- 읽어들이는 파일은 넣은 API 개수만큼 분할
+
+- 메인 프로세스에서 생긴 서브 프로세스에서 에러가 날 경우 처리된 데이터와 에러가 발생한 데이터를 따로 모아 로컬 디렉토리에 파일을 따로 저장
+
+
+
+- 

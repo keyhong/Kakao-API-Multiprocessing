@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 # 프로세스 메모리 공유 변수
 # from multiprocessing import Manager
 # from multiprocessing import shared_memory 사용 가능 (파이썬 3.8 )

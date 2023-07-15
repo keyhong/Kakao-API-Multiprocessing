@@ -6,14 +6,11 @@
 
 # from concurrent.futures import ProcessPoolExecutor, as_completed
 
-import warnings
-warnings.filterwarnings(action='ignore')
-
 import logging
-
-# import signal
 from multiprocessing import Process, Manager
 from typing import List
+import warnings
+warnings.filterwarnings(action='ignore')
 
 import numpy as np
 import pandas as pd

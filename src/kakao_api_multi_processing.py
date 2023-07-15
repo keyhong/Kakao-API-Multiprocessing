@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import logging
 import math
 from multiprocessing import current_process
-
 from typing import Dict
-import logging
 
 import requests
 

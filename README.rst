@@ -1,7 +1,7 @@
 .. -*- mode: rst -*-
 
 =========================
-Kakao-API-Multiprocessing
+Kakao-API-Multi-Processing
 =========================
 
 Kakao RestfulAPI(GetHttp)를 multi-processing으로 Separte된 Pandas DataFrame에 도로명 주소, 지번 주소 대로 Param을 날려서 위경도 좌표를 생성하고 병합하는 프로그램입니다.

@@ -4,11 +4,10 @@
 import logging
 import math
 from multiprocessing import current_process
+import requests
 from typing import Dict
 
-import requests
-
-def get_kakao_api_multiprocessing(list_proxy: 'multiprocessing.managers.ListProxy', target_col: str, df: 'pandas.DataFrame', api_key: str):
+def get_kakao_api_multiprocessing(list_proxy: "multiprocessing.managers.ListProxy", target_col: str, df: "pandas.DataFrame", api_key: str):
 
     logging.info(f"{current_process().name} : start")
     
@@ -31,8 +30,8 @@ def get_kakao_api_multiprocessing(list_proxy: 'multiprocessing.managers.ListProx
             if isinstance(addr, float) and math.isnan(addr):
                 continue
 
-            url = 'https://dapi.kakao.com/v2/local/search/address.json?query={address}'.format(address=addr)
-            respose: 'requests.models.Response' = requests.get(url, headers={'Authorization': f'KakaoAK {api_key}'})
+            url = "https://dapi.kakao.com/v2/local/search/address.json?query={address}".format(address=addr)
+            respose: "requests.models.Response" = requests.get(url, headers={"Authorization": f"KakaoAK {api_key}"})
 
             # 요청값이 비정상적인 경우
             if respose.status_code in HTTP_ERROR_STATUS_CODE:
@@ -51,12 +50,12 @@ def get_kakao_api_multiprocessing(list_proxy: 'multiprocessing.managers.ListProx
                 result = respose.json()
 
                 # result['documents']가 []인 경우 (호출은 정상이나, 주소에 대한 위경도를 못 찾는 경우)
-                if not result['documents']:
+                if not result["documents"]:
                     continue
 
                 # result['documents']가 []가 아닌 경우(위경도를 찾은 경우) 위경도 값을 대입
-                df.loc[idx, 'lo'] = result['documents'][0]['x']
-                df.loc[idx, 'la'] = result['documents'][0]['y']
+                df.loc[idx, "lo"] = result["documents"][0]['x']
+                df.loc[idx, "la"] = result["documents"][0]['y']
 
     except KeyboardInterrupt:
         logging.warn(f"{current_process().name} : Finished (Keyboard interrupt in Main-Process)")
@@ -64,4 +63,3 @@ def get_kakao_api_multiprocessing(list_proxy: 'multiprocessing.managers.ListProx
         logging.info(f"{current_process().name} : Finished")
     finally:
         list_proxy.append(df)
-        

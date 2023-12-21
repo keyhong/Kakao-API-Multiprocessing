@@ -4,13 +4,14 @@
 Kakao-API-Multiprocessing
 =========================
 
-Kakao RestfulAPI(GetHttp)를 multi-processing으로 Separte된 Pandas DataFrame에 도로명 주소, 지번 주소 대로 Param을 날려서 위경도 좌표를 생성하고 병합하는 프로그램``
+Kakao RestfulAPI(GetHttp)를 multi-processing으로 Separte된 Pandas DataFrame에 도로명 주소, 지번 주소 대로 Param을 날려서 위경도 좌표를 생성하고 병합하는 프로그램입니다.``
 
 How to use
 -----------
-1. src/api_keys 안에 rest api key 를 기입
-2. main.py 코드에 안에 읽어들일 csv 파일의 이름을 명시적 기재 (지역별 데이터의 파일 이름이 다르기 때문에 하드코딩)
-3. python main.py
+1. src/api_keys 안에 rest api key를 기입합니다.
+2. main.py 코드에 안에 읽어들일 csv 파일의 이름을 명시적 기재합니다. (지역별 데이터의 파일 이름이 다르기 때문에 하드코딩)
+3. data_cleanser.py 안의 지역의 이름을 수정합니다.
+3. 프로그램 실행 : python main.py
 
 Notes
 ------

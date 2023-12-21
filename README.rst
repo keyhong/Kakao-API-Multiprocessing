@@ -16,4 +16,4 @@ Notes
 ------
 - API 키가 많으면 많을수록 분산처리 속도 증가합니다.
 - 데이터 파일은 넣은 API 개수만큼 분할합니다.
-- Main Process에서 Spawning한 Sub Process에서 에러가 날 경우 직전까지 처리된 Row와 그 이후의 Row를 따로 로컬 디렉토리에 파일로 저장하도록 Exception 코딩
+- Main Process에서 Spawning한 Sub Process에서 에러가 날 경우 직전까지 처리된 Row와 그 이후의 Row를 따로 로컬 디렉토리에 파일로 저장하도록 Exception 코딩하였습니다.

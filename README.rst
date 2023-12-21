@@ -8,9 +8,9 @@ Kakao RestfulAPI(GetHttp)를 multi-processing으로 Separte된 Pandas DataFrame�
 
 How to use
 -----------
-1. src/api_keys 안에 rest api key를 기입합니다.
-2. main.py 코드에 안에 읽어들일 csv 파일의 이름을 명시적 기재합니다. (지역별 데이터의 파일 이름이 다르기 때문에 하드코딩)
-3. data_cleanser.py 안의 지역의 이름을 수정합니다.
+1. src/api_keys 코드 내 rest api key를 기입합니다.
+2. src/main.py 코드 내 읽어들일 csv 파일의 이름을 명시적 기재합니다. (데이터의 파일 이름이 매번 상이하기 때문)
+3. src/data_cleanser.py 코드 내 지역의 이름을 수정합니다.
 3. 프로그램 실행 : python main.py
 
 Notes

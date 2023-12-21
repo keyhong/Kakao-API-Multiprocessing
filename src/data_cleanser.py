@@ -107,11 +107,11 @@ class DataCleanser:
             self.__df = "END"
 
     @property
-    def get_rn_adrs_df(self):
+    def get_rn_adrs_df(self) -> pd.DataFrame:
 
         return self.__rn_adrs_df
 
     @property
-    def get_lno_adrs_df(self):
+    def get_lno_adrs_df(self) -> pd.DataFrame:
 
         return self.__lno_adrs_df

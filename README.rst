@@ -4,11 +4,11 @@
 Kakao-API-Multi-Processing
 =========================
 
-Kakao RestfulAPI(GetHttp)를 multi-processing으로 Separte된 pandas.DataFrame에 도로명 주소, 지번 주소 순서대로 Argument를 날려서 위경도 좌표를 생성하고 병합하는 프로그램입니다.
+Kakao RestfulAPI(Request)를 multi-processing으로 Separte된 pandas.DataFrame에 도로명 주소, 지번 주소 순서대로 Argument를 날려서 위경도 좌표를 생성하고 병합하는 프로그램입니다.
 
 Why did you make it?
 ---------------------
-기존에 있던 전처리 
+기존에 있던 주소 좌표에 위경도를 만들어주는 RestfulAPI Get Request 코드가 단일 API로 호출하다 보니, 속도가 느리고 호출 횟수(Kako API당 6만회 요청 가능)를 넘어가는 경우의 여러 번 돌려야 하는 문제가 있었습니다.
 
 How to use it?
 ----------------

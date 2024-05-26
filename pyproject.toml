@@ -1,0 +1,69 @@
+[tool.poetry]
+name = "kakao-api-multiprocessing"
+version = "0.1.0"
+description = ""
+authors = ["Keyhong <wnhong96@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.26.4"
+pandas = "^2.2.2"
+requests = "^2.32.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.4.5"
+black = "^24.4.2"
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+# Same as Black.
+line-length = 119
+output-format = "full"
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+lint.fixable = ["ALL"]
+lint.unfixable = []
+
+lint.select = [
+    "I", # isort
+    "F", # pyflakes
+    "E", # pycodestyle
+    "B" # black
+]
+# lint.ignore = ["E501", "C0301"]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,3 +1,5 @@
 gui/
 __pycache__/
 api_keys_data.py
+
+.vscode
